@@ -118,5 +118,3 @@ app.delete("/user/:id", async (req, res) => {
 });
 
 app.listen(3005);
-
-// aO6MAcQfH7L6AJC0
