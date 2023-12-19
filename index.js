@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const { MongoClient, ObjectId } = require("mongodb");
-const URL = "mongodb://localhost:27017";
+const dotenv = require("dotenv").config();
+const URL = process.env.DB;
 
 app.use(express.json());
 app.use(
@@ -117,3 +118,5 @@ app.delete("/user/:id", async (req, res) => {
 });
 
 app.listen(3005);
+
+// aO6MAcQfH7L6AJC0
