@@ -10,7 +10,10 @@ const URL = process.env.DB;
 app.use(express.json());
 app.use(
   cors({
-    origin: ["https://stellar-douhua-66d483.netlify.app","http://localhost:3000"],
+    origin: [
+      "https://stellar-douhua-66d483.netlify.app",
+      "http://localhost:3000",
+    ],
   })
 );
 
@@ -25,6 +28,7 @@ function authorize(req, res, next) {
         process.env.SECRET_KEY
       );
       if (verify) {
+        req.userId = verify.id;
         next();
       } else {
         res.status(401).json({ message: "Unauthorized" });
@@ -37,11 +41,14 @@ function authorize(req, res, next) {
   }
 }
 
-app.get("/students",authorize, async (req, res) => {
+app.get("/students", authorize, async (req, res) => {
   try {
     const connection = await MongoClient.connect(URL);
     const db = connection.db("b52_wd_tamil");
-    const students = await db.collection("students").find().toArray();
+    const students = await db
+      .collection("students")
+      .find({ createdBy: ObjectId(req.userId) })
+      .toArray();
     await connection.close();
     res.json(students);
   } catch (error) {
@@ -50,10 +57,11 @@ app.get("/students",authorize, async (req, res) => {
   }
 });
 
-app.post("/student", authorize,async (req, res) => {
+app.post("/student", authorize, async (req, res) => {
   try {
     const connection = await MongoClient.connect(URL);
     const db = connection.db("b52_wd_tamil");
+    req.body.createdBy = req.userId;
     const student = await db.collection("students").insertOne(req.body);
     await connection.close();
     res.json({ message: "User created successfully" });
@@ -67,7 +75,7 @@ app.post("/student", authorize,async (req, res) => {
 });
 
 // URL Params
-app.get("/student/:id",authorize, async (req, res) => {
+app.get("/student/:id", authorize, async (req, res) => {
   try {
     const connection = await MongoClient.connect(URL);
     const db = connection.db("b52_wd_tamil");
@@ -91,7 +99,7 @@ app.get("/student/:id",authorize, async (req, res) => {
   // }
 });
 
-app.put("/student/:id",authorize, async (req, res) => {
+app.put("/student/:id", authorize, async (req, res) => {
   try {
     const connection = await MongoClient.connect(URL);
     const db = connection.db("b52_wd_tamil");
@@ -118,7 +126,7 @@ app.put("/student/:id",authorize, async (req, res) => {
   // }
 });
 
-app.delete("/student/:id",authorize, async (req, res) => {
+app.delete("/student/:id", authorize, async (req, res) => {
   try {
     const connection = await MongoClient.connect(URL);
     const db = connection.db("b52_wd_tamil");
@@ -160,6 +168,7 @@ app.post("/register", async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+
 
 app.post("/login", async (req, res) => {
   try {
