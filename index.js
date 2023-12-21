@@ -10,7 +10,7 @@ const URL = process.env.DB;
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://stellar-douhua-66d483.netlify.app",
+    origin: ["https://stellar-douhua-66d483.netlify.app","http://localhost:3000"],
   })
 );
 
